@@ -1,9 +1,18 @@
-<template>
-   <div class="row">
 
-       <div class="col-8">
+<template>
+
+   <div class="row justify-content-center">
+       <select name="background" id="background" class="form-control my-2" @change="changeBackground" v-model="key">
+           <option value="/waiting" selected>Waiting..</option>
+           <option value="http://archelier.com//ai/index.html">1</option>
+
+       </select>
+       <iframe v-if="admin == 1 || admin == 2" v-bind:src="url"  frameborder="0" width="720px" height="420px"></iframe>
+        <iframe v-else v-bind:src="url"  frameborder="0" style="position:fixed; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:1;"></iframe>
+       <!-- <img v-bind:src="'/upload/' + url + '.jpg'" width="800px" /> -->
+       <!-- <div class="col-8">
            <div class="card card-default">
-               <div class="card-header">Messages</div>
+               <div class="card-header">Messages ee</div>
                <div class="card-body p-0">
                    <ul class="list-unstyled" style="height:300px; overflow-y:scroll" v-chat-scroll>
                        <li class="p-2" v-for="(message, index) in messages" :key="index" >
@@ -36,21 +45,29 @@
                     </ul>
                 </div>
             </div>
-        </div>
+
+        </div> -->
 
    </div>
 </template>
 
 <script>
+
+    var admin = document.getElementById('admin').value;
+    console.log(admin);
     export default {
 
         props:['user'],
 
         data() {
             return {
+                admin: admin,
+                key: '',
                 messages: [],
+                background: '',
                 newMessage: '',
                 users:[],
+                url: '/waiting',
                 activeUser: false,
                 typingTimer: false,
             }
@@ -61,6 +78,7 @@
 
             Echo.join('chat')
                 .here(user => {
+
                     this.users = user;
                 })
                 .joining(user => {
@@ -71,6 +89,10 @@
                 })
                 .listen('MessageSent',(event) => {
                     this.messages.push(event.message);
+                })
+                .listen('ChangeBackground', (event) => {
+                    this.url = event.message.message;
+                    console.log('Cambio: ' + event.message.message);
                 })
                 .listenForWhisper('typing', user => {
                    this.activeUser = user;
@@ -87,6 +109,11 @@
         },
 
         methods: {
+            changeBackground(){
+                this.url = this.key
+                console.log(this.key);
+                axios.post('newBackground', {message: this.key});
+            },
             fetchMessages() {
                 axios.get('messages').then(response => {
                     this.messages = response.data;
@@ -108,6 +135,10 @@
             sendTypingEvent() {
                 Echo.join('chat')
                     .whisper('typing', this.user);
+            },
+
+            changeBackgound(color) {
+                axios.post('changeBackgound', {message: color});
             }
         }
     }

@@ -14,10 +14,11 @@ use App\Events\WebsocketDemoEvent;
 */
 
 Route::get('/', function () {
-    broadcast(new WebsocketDemoEvent('some data'));
 
-    return view('welcome');
+
+    return redirect('chats');
 });
+
 
 Route::get('/chats', 'ChatsController@index');
 
@@ -26,4 +27,17 @@ Route::post('/messages', 'ChatsController@sendMessage');
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/home', function () {
+
+    return redirect('chats');
+});
+
+
+Route::get('/waiting', function () {
+
+    return view('waitingAction');
+});
+
+Route::get('/test', 'ChatsController@pageChangeBG');
+
+Route::post('/newBackground', 'ChatsController@changeBackground');

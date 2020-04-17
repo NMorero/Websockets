@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ChangeBackground;
 use Illuminate\Http\Request;
 use App\Message;
 use App\Events\MessageSent;
@@ -32,5 +33,20 @@ class ChatsController extends Controller
         broadcast(new MessageSent($message->load('user')))->toOthers();
 
         return ['status' => 'success'];
+    }
+
+    public function changeBackground(Request $request)
+    {
+        $message = auth()->user()->messages()->create([
+            'message' => $request->message
+        ]);
+
+        broadcast(new ChangeBackground($message->load('user')))->toOthers();
+
+        return ['status' => 'success'];
+    }
+
+    public function pageChangeBG(){
+        return view('changeBack');
     }
 }
